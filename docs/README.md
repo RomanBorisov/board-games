@@ -152,6 +152,10 @@
 6. Включить Kafka producer/consumer для event log
 7. Добавить UI-экраны auth/lobby/game на frontend
 
+Подробный пошаговый план с фазами, критериями готовности и рисками вынесен в отдельный файл:
+
+- `docs/IMPLEMENTATION_ROADMAP.md`
+
 ## 12. Команды, использованные для инициализации
 
 ```bash
