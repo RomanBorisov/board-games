@@ -70,7 +70,7 @@ Backend поднимается на `http://localhost:8600`.
 Проверка:
 
 ```bash
-curl http://localhost:8600
+curl http://localhost:8600/api
 ```
 
 ### 6) Запустить frontend
@@ -102,7 +102,7 @@ npx nx run-many --target=test --projects=frontend,backend,shared
 E2E backend:
 
 ```bash
-npx nx test backend-e2e
+npx nx e2e backend-e2e
 ```
 
 ### 9) Сборка проектов
