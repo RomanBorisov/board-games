@@ -1,6 +1,6 @@
 # Mentor Progress
 
-Last updated: 2026-04-25
+Last updated: 2026-05-03
 
 ## Collaboration Rules
 
@@ -96,23 +96,56 @@ Tests were intentionally deferred at the user's request. `shared` currently has 
 
 ## Next Planned Big Task
 
-Next big task: connect shared contracts to the backend and prepare the foundation for the game engine.
+Next big task: continue backend game engine foundation.
 
-Why: backend should start using the shared domain model instead of ad hoc strings and objects. This prepares the later Durak engine, session handling, and WebSocket game actions.
+Why: backend should use the shared domain model instead of ad hoc strings and objects. This prepares the later Durak engine, session handling, and WebSocket game actions.
+
+## In Progress Task 2: Backend Game Engine Skeleton
+
+Goal: create the backend-side architecture for game engines before implementing real Durak rules.
+
+Implemented so far:
+
+- `backend/src/app/game/game.module.ts`
+- `backend/src/app/game/engine/game-engine.interface.ts`
+- `backend/src/app/game/engine/durak.engine.ts`
+- `backend/src/app/game/registry/registry.service.ts`
+- `backend/src/app/app.module.ts` imports `GameModule`.
+
+Current design:
+
+- `IGameEngine<TServerState, TClientState, TAction>` defines the engine contract:
+  - `initGame(playerIds)`
+  - `processAction(state, action, playerId)`
+  - `getStateForPlayer(state, playerId)`
+  - `isGameOver(state)`
+- `DurakEngine` implements `IGameEngine<IFoolGameServerState, IFoolGameClientState, IFoolGameAction>`.
+- `DurakEngine` is a Nest provider via `@Injectable()`.
+- `GameRegistryService` receives `DurakEngine` via constructor injection and registers it internally.
+- `GameRegistryService.getEngine(AvailableGameEngines.DURAK)` can return the Durak engine.
+- `GameModule` provides both `DurakEngine` and `GameRegistryService`.
+
+Latest checks for backend:
+
+```bash
+npx nx build backend
+npx nx lint backend
+```
+
+Both passed.
+
+Remaining follow-ups for Task 2:
+
+- Review whether `getEngine` should return `null` or throw a Nest exception for unsupported game engines.
+- Consider renaming `AvailableGameEngines` to a more domain-oriented type later, especially when `GameType` is added to shared contracts.
+- Add focused tests later for `GameRegistryService.getEngine(DURAK)`.
 
 Likely breakdown:
 
-1. Inspect current backend structure.
-2. Decide where game engine contracts should live:
+1. Decide where game engine contracts should live:
    - shared interface if frontend also needs to know the contract;
    - backend-only interface if it is purely server implementation detail.
-3. Create backend game module structure:
-   - game module;
-   - engines folder;
-   - Durak engine skeleton;
-   - registry skeleton.
-4. Use `IFoolGameServerState` and `IFoolGameAction` from `@board-games/shared`.
-5. Add minimal unit tests or build/lint checks, depending on the user's current preference.
+2. Start replacing `throw new Error('Not implemented')` skeleton methods with narrow, testable Durak helper logic when the user is ready.
+3. Add minimal unit tests or build/lint checks, depending on the user's current preference.
 
 Do not implement this automatically unless the user says something like "Выдай задачу" or explicitly asks the mentor to code it.
-
