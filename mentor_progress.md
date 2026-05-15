@@ -1,6 +1,6 @@
 # Mentor Progress
 
-Last updated: 2026-05-03
+Last updated: 2026-05-15
 
 ## Collaboration Rules
 
@@ -149,3 +149,53 @@ Likely breakdown:
 3. Add minimal unit tests or build/lint checks, depending on the user's current preference.
 
 Do not implement this automatically unless the user says something like "Выдай задачу" or explicitly asks the mentor to code it.
+
+## In Progress Task 3: Durak Initial State
+
+Goal: replace the `DurakEngine.initGame` placeholder with a valid initial Durak server state.
+
+Implemented so far:
+
+- `IGameEngine` now has a fourth generic for engine-specific init options.
+- `DurakEngine.initGame(playerIds, options)` now:
+  - accepts `IGameEngineOptions`;
+  - validates runtime support for exactly 2 players;
+  - creates a 24/36/52-card deck according to `deckSize`;
+  - shuffles the deck;
+  - chooses one trump card from the bottom of the shuffled deck;
+  - marks all cards of the trump suit with `isTrump: true`;
+  - deals 6 cards to each player;
+  - keeps `fullDeck` as the full marked deck;
+  - keeps `remainingDeck` as the deck after the first deal;
+  - sets player roles for attacker and defender;
+  - returns a valid `game` object for Durak.
+- `GameRegistryService` was updated to use the new `IGameEngine` options generic.
+- `getStateForPlayer(state, playerId)` returns a client-safe state:
+  - the current player's own `hand`;
+  - public player data with `cardCount`;
+  - no `fullDeck`;
+  - no `remainingDeck`;
+  - no opponent hands.
+- `isGameOver(state)` currently returns `state.isGameOver`.
+
+Current supported options:
+
+- `DeckSize = 24 | 36 | 52`
+- `PlayersPerGame = 2 | 3 | 4 | 5 | 6 | 7 | 8`
+- Runtime currently allows only `playersPerGame === 2` and exactly two `playerIds`.
+
+Latest checks:
+
+```bash
+npx nx build backend
+npx nx lint backend
+npx nx build shared
+npx nx lint shared
+```
+
+All passed.
+
+Remaining follow-ups for Task 3:
+
+- Add tests for `initGame` invariants: deck length, hand size, remaining deck size, trump marking, attacker/defender assignment, and invalid player count.
+- Later, when actions are implemented, update the code that sets `state.isGameOver`, `winner`, and `loser`.

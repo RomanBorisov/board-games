@@ -1,17 +1,22 @@
 import { IGameState } from "../../core/game-state";
-import { IFoolGameCard, IFoolGameCardsOnTable,  } from "../card";
+import {
+  FoolGameCardSuit,
+  IFoolGameCard,
+  IFoolGameCardsOnTable,
+} from '../card';
 import { IFoolGameClientPlayer, IFoolGamePlayer } from "../player";
 
-export interface IFoolGameCoreState<FoolGamePlayerType = IFoolGamePlayer> extends IGameState<FoolGamePlayerType> {
-    trumpCard: IFoolGameCard;
+export interface IFoolGameCoreState<FoolGamePlayerType = IFoolGamePlayer>
+  extends IGameState<FoolGamePlayerType> {
+  trumpSuit: FoolGameCardSuit;
 
-    currentPlayer: FoolGamePlayerType;
-    nextPlayer: FoolGamePlayerType;
-    
-    attacker: FoolGamePlayerType | null;
-    defender: FoolGamePlayerType | null;
+  currentPlayer: FoolGamePlayerType;
+  nextPlayer: FoolGamePlayerType;
 
-    cardsOnTable: IFoolGameCardsOnTable[];
+  attacker: FoolGamePlayerType | null;
+  defender: FoolGamePlayerType | null;
+
+  cardsOnTable: IFoolGameCardsOnTable[];
 }
 
 /*

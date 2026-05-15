@@ -4,13 +4,14 @@ import {
   IFoolGameClientState,
   IFoolGameServerState,
 } from '@board-games/shared';
-import { DurakEngine } from '../engine/durak.engine';
+import { DurakEngine, IGameEngineOptions } from '../engine/durak.engine';
 import { AvailableGameEngines, IGameEngine } from '../engine/game-engine.interface';
 
 type SupportedGameEngine = IGameEngine<
   IFoolGameServerState,
   IFoolGameClientState,
-  IFoolGameAction
+  IFoolGameAction,
+  IGameEngineOptions
 >;
 
 @Injectable()

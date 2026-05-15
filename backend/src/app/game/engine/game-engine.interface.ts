@@ -3,16 +3,20 @@
 @param TClientState - Client state of the game. What the client/player sees and can modify.
 @param TAction - Action of the game. What the client/player can do.
 */
-export interface IGameEngine<TServerState, TClientState, TAction> { 
+import { IGame } from '@board-games/shared';
+
+export interface IGameEngine<TServerState, TClientState, TAction, TOptions> {
     readonly name: AvailableGameEngines;
-  
+
+    readonly game: IGame;
+
     /*
     * Initialize the game.
     * @param playerIds - IDs of the players in the game.
     * @returns Initial state of the game.
     */
-    initGame(playerIds: string[]): TServerState;
-  
+    initGame(playerIds: string[], options: TOptions): TServerState;
+
     /*
     * Process an action from a player.
     * @param state - Current state of the game.
@@ -25,7 +29,7 @@ export interface IGameEngine<TServerState, TClientState, TAction> {
       action: TAction,
       playerId: string
     ): TServerState;
-  
+
     /*
     * Get the state for a player.
     * @param state - Current state of the game.
@@ -36,7 +40,7 @@ export interface IGameEngine<TServerState, TClientState, TAction> {
       state: TServerState,
       playerId: string
     ): TClientState;
-  
+
     /*
     * Check if the game is over.
     * @param state - Current state of the game.
