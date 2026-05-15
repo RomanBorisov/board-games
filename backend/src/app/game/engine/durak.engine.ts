@@ -1,9 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import {
+  FoolGameActionType,
   FoolGameCardRank,
   FoolGameCardSuit,
   FoolGamePlayerRole,
   IFoolGameAction,
+  IFoolGameAttackAction,
   IFoolGameCard,
   IFoolGameClientPlayer,
   IFoolGameClientState,
@@ -71,7 +73,7 @@ export class DurakEngine
 
       isGameOver: false,
       winner: null,
-      loser: null,
+      losers: null,
       game: this.game,
     };
   }
@@ -81,10 +83,86 @@ export class DurakEngine
     action: IFoolGameAction,
     playerId: string,
   ): IFoolGameServerState {
-    void state;
-    void action;
-    void playerId;
-    throw new Error('Not implemented');
+    switch (action.type) {
+      case FoolGameActionType.Attack:
+        return this._processAttackAction(state, playerId, action);
+      case FoolGameActionType.Defend:
+      case FoolGameActionType.Pass:
+      case FoolGameActionType.TakeCard:
+      default:
+        throw new Error('Not implemented');
+    }
+  }
+
+  private _processAttackAction(
+    state: IFoolGameServerState,
+    playerId: string,
+    action: IFoolGameAttackAction,
+  ): IFoolGameServerState {
+    const isUserInCurrentGameSession = state.players.find((p) => playerId === p.id);
+    if (!isUserInCurrentGameSession) {
+      throw new Error(`User with id:${playerId} cannot be found`);
+    }
+
+    const isCurrentUserTurn = state.currentPlayer.id === playerId;
+    const isCurrentUserAttacker = state.attacker.id === playerId;
+
+    if (!isCurrentUserTurn || !isCurrentUserAttacker) {
+      throw new Error(
+        `User with id: ${playerId} cannot do action when it's not his turn`,
+      );
+    }
+
+    const cardToUse = action.payload.card;
+    const playerHasUsedCardInHand = !!state.currentPlayer.hand.find(
+      (c) => cardToUse.rank === c.rank && cardToUse.suit === c.suit,
+    );
+
+    if (!playerHasUsedCardInHand) {
+      throw new Error(`User with id:${playerId} try to use unexisting card`);
+    }
+    const updatedHand = state.attacker.hand.filter(
+      (card) => !(card.suit === cardToUse.suit && card.rank === cardToUse.rank),
+    );
+    const updatedCurrentPlayer: IFoolGamePlayer = {
+      ...structuredClone(state.currentPlayer),
+      hand: updatedHand,
+      isHisTurn: false,
+    };
+    const updatedDefender: IFoolGamePlayer = {
+      ...structuredClone(state.defender),
+      isHisTurn: true,
+      isDefender: true,
+    };
+
+    const updatedPlayers = state.players.map((player) => {
+      if (player.id === state.defender.id) {
+        return updatedDefender;
+      }
+
+      if (player.id === updatedCurrentPlayer.id) {
+        return updatedCurrentPlayer;
+      }
+
+      return player;
+    });
+
+    return {
+      ...structuredClone(state),
+      attacker: updatedCurrentPlayer,
+      defender: updatedDefender,
+      currentPlayer: updatedDefender,
+      nextPlayer: updatedCurrentPlayer,
+      players: updatedPlayers,
+      cardsOnTable: [
+        ...structuredClone(state.cardsOnTable),
+        {
+          attackerCard: cardToUse,
+          defenderCard: null,
+        },
+      ],
+    };
+
   }
 
   public getStateForPlayer(
@@ -108,7 +186,7 @@ export class DurakEngine
         ? this._createClientPlayer(state.defender)
         : null,
       hand: player.hand,
-      loser: state.loser ? this._createClientPlayer(state.loser) : null,
+      losers: state.losers ? state.losers.map((l) => this._createClientPlayer(l)) : null,
       nextPlayer: state.nextPlayer
         ? this._createClientPlayer(state.nextPlayer)
         : null,

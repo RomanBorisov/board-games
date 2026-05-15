@@ -1,6 +1,6 @@
 # Mentor Progress
 
-Last updated: 2026-05-15
+Last updated: 2026-05-16
 
 ## Collaboration Rules
 
@@ -195,7 +195,21 @@ npx nx lint shared
 
 All passed.
 
+Completed follow-up for Task 3:
+
+- `processAction` now handles `FoolGameActionType.Attack`:
+  - validates that the player belongs to the game;
+  - validates that the acting player is the current attacker;
+  - validates the played card by `rank` and `suit`;
+  - removes the played card from the attacker's hand;
+  - adds `{ attackerCard, defenderCard: null }` to `cardsOnTable`;
+  - updates `attacker`, `defender`, `currentPlayer`, `nextPlayer`, and `players` consistently.
+- `Defend`, `Pass`, and `TakeCard` still intentionally throw `Not implemented`.
+- Game-over logic is not handled during `Attack` yet.
+- Shared game state currently uses `losers: PlayerType[] | null` instead of singular `loser`.
+
 Remaining follow-ups for Task 3:
 
 - Add tests for `initGame` invariants: deck length, hand size, remaining deck size, trump marking, attacker/defender assignment, and invalid player count.
-- Later, when actions are implemented, update the code that sets `state.isGameOver`, `winner`, and `loser`.
+- Add tests for successful and invalid `Attack` actions.
+- Later, update the code that sets `state.isGameOver`, `winner`, and `losers`.

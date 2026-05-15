@@ -7,5 +7,5 @@ export interface IGameState<PlayerType = IPlayer> {
 
     isGameOver: boolean;
     winner: PlayerType | null;
-    loser: PlayerType | null;
+    losers: PlayerType[] | null;
 }
